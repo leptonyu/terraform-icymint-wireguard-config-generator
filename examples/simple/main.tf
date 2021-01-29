@@ -33,6 +33,15 @@ module "wireguard" {
   }
 }
 
-output "wg" {
-  value = module.wireguard
+# output "wg" {
+#   value = module.wireguard
+# }
+
+
+resource "local_file" "wg" {
+  for_each             = module.wireguard.configurations
+  content              = each.value
+  file_permission      = "0644"
+  directory_permission = "0755"
+  filename             = format("%s/.terraform/%s.conf", path.module, each.key)
 }
