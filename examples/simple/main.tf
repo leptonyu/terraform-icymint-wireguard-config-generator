@@ -1,27 +1,38 @@
 module "wireguard" {
   source = "../.."
-  # cert_path = format("%s/.terraform/build", path.module)
-  nodes = [
-    {
-      name      = "main"
+  nodes = {
+    main = {
       id        = 1
-      public_ip = "127.0.0.1"
-      prikey    = "mEd1ZIT+ODSele+LPqAsqFQt+p+NfMl53TrlXEDksVY="
-      pubkey    = "zqC7rtlrpLMD2ySkt2AU2ehUuUl9kuUj+Ru5q0L3yBc="
-    },
-    {
-      name   = "node1"
-      id     = 2
-      prikey = "WJPWyCmKl1H1nRn58IanbLcE9tgsR+OfhTFaNLZnqWg="
-      pubkey = "uII28w1ccTtkaBMvnG4AkbGiW9NFXbi04laLavXm6mA="
+      public_ip = "1.2.3.4"
+      prikey    = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      pubkey    = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0="
       connect_subnets = {
-        main = []
+        node1 = {
+          subnets             = ["8.0.0.0/8"]
+          mergeSubnetStrategy = "replace"
+        }
       }
     }
-  ]
+    node1 = {
+      id     = 2
+      os     = "macos"
+      routes = ["10.0.0.0/16"]
+      prikey = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="
+      pubkey = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB0="
+    }
+    node2 = {
+      id     = 3
+      prikey = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC="
+      pubkey = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC0="
+      connect_subnets = {
+        main = {
+          persistentKeepalive = 30
+        }
+      }
+    }
+  }
 }
 
-
-output "name" {
-  value = module.wireguard.name
+output "wg" {
+  value = module.wireguard
 }

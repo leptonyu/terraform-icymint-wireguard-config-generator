@@ -1,8 +1,12 @@
-# output "configurations" {
-#   value       = local.configurations
-#   description = "Configuration Output"
-# }
+output "nodes" {
+  value = local.servers
+}
 
-output "name" {
-  value = local.configurations
+output "links" {
+  value = local.links
+}
+
+output "configurations" {
+  value       = local.configurations
+  description = "Configuration Output"
 }

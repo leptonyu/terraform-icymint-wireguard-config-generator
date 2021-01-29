@@ -1,18 +1,24 @@
 locals {
   public_servers = {
-    for node in var.nodes : node.name => {
+    for name, node in var.nodes : name => {
       ip   = node.public_ip
-      port = can(node.port) ? node.port : 51820
+      port = coalesce(node.port, 51820)
     } if can(node.public_ip)
   }
 
-  servers = { for node in var.nodes : node.name => {
+  servers = { for name, node in var.nodes : name => {
     ip  = cidrhost(var.cidr_block, node.id)
     pri = node.prikey
     pub = node.pubkey
     dns = coalesce(node.dns, [])
     sub = coalesce(node.subnets, [])
-    con = coalesce(node.connect_subnets, {})
+    os  = coalesce(node.os, "linux")
+    con = { for k, v in coalesce(node.connect_subnets, {}) : k => {
+      subnets   = coalesce(v.subnets, [])
+      replace   = can(v.mergeSubnetStrategy) ? v.mergeSubnetStrategy == "replace" : false
+      keepalive = coalesce(v.persistentKeepalive, 25)
+    } }
+    origin = node
   } }
 
   links = { for name, server in local.servers : name =>
@@ -22,13 +28,14 @@ locals {
   configurations = { for name, node in local.servers
     : name => templatefile(format("%s/templates/wg0.conf.tpl", path.module), {
       name           = name
+      cidr           = var.cidr_block
       public_servers = local.public_servers
       node           = node
-      link = [for l in local.links[name] : {
-        name    = l
-        pubkey  = local.servers[l].pub
-        subnets = can(node.con[l]) ? node.con[l] : local.servers[l].sub
-      }]
+      link = { for l in local.links[name] : l => {
+        pubkey    = local.servers[l].pub
+        subnets   = flatten([[format("%s/32", local.servers[l].ip)], can(node.con[l]) ? [node.con[l].replace ? [] : local.servers[l].sub, node.con[l].subnets] : []])
+        keepalive = can(node.con[l]) ? node.con[l].keepalive : 25
+      } }
     })
   }
 }

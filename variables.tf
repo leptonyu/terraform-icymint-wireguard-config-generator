@@ -16,32 +16,42 @@ variable "cidr_block" {
 # }
 
 variable "nodes" {
-  type = list(object({
-    name            = string
-    id              = number
-    prikey          = string
-    pubkey          = string
-    public_ip       = optional(string)
-    port            = optional(number)
-    subnets         = optional(list(string))
-    connect_subnets = optional(map(list(string)))
-    dns             = optional(list(string))
+  type = map(object({
+    id     = number
+    prikey = string
+    pubkey = string
+    os     = optional(string)
+    mtu    = optional(number)
+    routes = optional(list(string))
+    post = optional(object({
+      up   = list(string)
+      down = list(string)
+    }))
+    public_ip = optional(string)
+    port      = optional(number)
+    subnets   = optional(list(string))
+    connect_subnets = optional(map(object({
+      subnets             = optional(list(string))
+      mergeSubnetStrategy = optional(string)
+      persistentKeepalive = optional(number)
+    })))
+    dns = optional(list(string))
   }))
 
   description = "Node list"
 
   validation {
-    condition     = length(var.nodes) == length(toset([for n in var.nodes : n.name]))
+    condition     = length(var.nodes) == length(toset([for k, n in var.nodes : k]))
     error_message = "Name duplicated."
   }
 
   validation {
-    condition     = length(var.nodes) == length(toset([for n in var.nodes : n.id]))
+    condition     = length(var.nodes) == length(toset([for k, n in var.nodes : n.id]))
     error_message = "ID duplicated."
   }
 
   validation {
-    condition     = alltrue([for n in var.nodes : can(regex("^[a-z]([-a-z0-9]{1,10})$", n.name))])
+    condition     = alltrue([for k, n in var.nodes : can(regex("^[a-z]([-a-z0-9]{1,10})$", k))])
     error_message = "Name invalid."
   }
 
@@ -51,12 +61,50 @@ variable "nodes" {
   }
 
   validation {
+    condition     = alltrue([for n in var.nodes : coalesce(n.mtu, 1500) > 1000 && coalesce(n.mtu, 1500) < 10000])
+    error_message = "MTU invalid, please value at [1, 254]."
+  }
+
+  validation {
+    condition     = alltrue([for n in var.nodes : can(regex("^(linux|macos|ios|android|app)$", coalesce(n.os, "linux")))])
+    error_message = "OS invalid."
+  }
+
+  validation {
+    condition     = alltrue([for n in var.nodes : coalesce(n.os, "linux") == "macos" || length(coalesce(n.routes, [])) == 0])
+    error_message = "Only macos not support routes."
+  }
+
+  validation {
+    condition     = alltrue([for n in var.nodes : coalesce(n.port, 58120) > 0 && coalesce(n.port, 58120) < 65535])
+    error_message = "Port invalid."
+  }
+
+  validation {
     condition     = alltrue([for n in var.nodes : can(regex("^[a-zA-Z0-9+/]{43}=$", n.prikey))])
     error_message = "Prikey invalid."
   }
 
   validation {
+    condition     = length(var.nodes) == length(toset([for k, n in var.nodes : n.prikey]))
+    error_message = "Prikey duplicated."
+  }
+
+
+  validation {
     condition     = alltrue([for n in var.nodes : can(regex("^[a-zA-Z0-9+/]{43}=$", n.pubkey))])
     error_message = "Pubkey invalid."
+  }
+
+  validation {
+    condition     = length(var.nodes) == length(toset([for k, n in var.nodes : n.pubkey]))
+    error_message = "Pubkey duplicated."
+  }
+
+  validation {
+    condition = alltrue([for n in var.nodes :
+      alltrue([for c in coalesce(n.connect_subnets, {}) : can(regex("^(replace|merge)$", coalesce(c.mergeSubnetStrategy, "merge")))])
+    ])
+    error_message = "MergeSubnetStrategy invalid, use replace/merge ."
   }
 }
