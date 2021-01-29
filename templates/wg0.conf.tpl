@@ -3,7 +3,7 @@ Address = ${node.ip}/24
 %{~ if public_servers[name].port != null}
 ListenPort = ${public_servers[name].port}
 %{~ endif }
-PrivateKey = ${node.pri}
+PrivateKey = ${node.key.pri}
 %{~ for dns in node.dns }
 DNS = ${dns}
 %{~ endfor}

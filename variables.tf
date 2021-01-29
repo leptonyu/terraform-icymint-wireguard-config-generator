@@ -10,16 +10,19 @@ variable "cidr_block" {
   description = "Wireguard cidr block"
 }
 
-# variable "cert_path" {
-#   type        = string
-#   description = "Wireguard private key path"
-# }
+variable "allow_auto_generate_key" {
+  default     = false
+  type        = bool
+  description = "Allow auto generate wireguard keys, you have install wireguard locally and can run bash shell."
+}
 
 variable "nodes" {
   type = map(object({
-    id     = number
-    prikey = string
-    pubkey = string
+    id = number
+    key = optional(object({
+      pri = string
+      pub = string
+    }))
     os     = optional(string)
     mtu    = optional(number)
     routes = optional(list(string))
@@ -38,7 +41,7 @@ variable "nodes" {
     dns = optional(list(string))
   }))
 
-  description = "Node list"
+  description = "Wireguard node list"
 
   validation {
     condition     = length(var.nodes) == length(toset([for k, n in var.nodes : k]))
@@ -80,24 +83,29 @@ variable "nodes" {
     error_message = "Port invalid."
   }
 
+  # validation {
+  #   condition     = alltrue([for n in var.nodes : n.key != null || allow_auto_generate_key])
+  #   error_message = "Auto generate key is turned off, please provide all keys."
+  # }
+
   validation {
-    condition     = alltrue([for n in var.nodes : can(regex("^[a-zA-Z0-9+/]{43}=$", n.prikey))])
+    condition     = alltrue([for n in var.nodes : can(regex("^[a-zA-Z0-9+/]{43}=$", n.key.pri)) if n.key != null])
     error_message = "Prikey invalid."
   }
 
   validation {
-    condition     = length(var.nodes) == length(toset([for k, n in var.nodes : n.prikey]))
+    condition     = length([for n in var.nodes : n if n.key != null]) == length(toset([for k, n in var.nodes : n.key.pri if n.key != null]))
     error_message = "Prikey duplicated."
   }
 
 
   validation {
-    condition     = alltrue([for n in var.nodes : can(regex("^[a-zA-Z0-9+/]{43}=$", n.pubkey))])
+    condition     = alltrue([for n in var.nodes : can(regex("^[a-zA-Z0-9+/]{43}=$", n.key.pub)) if n.key != null])
     error_message = "Pubkey invalid."
   }
 
   validation {
-    condition     = length(var.nodes) == length(toset([for k, n in var.nodes : n.pubkey]))
+    condition     = length([for n in var.nodes : n if n.key != null]) == length(toset([for k, n in var.nodes : n.key.pub if n.key != null]))
     error_message = "Pubkey duplicated."
   }
 

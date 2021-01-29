@@ -1,3 +1,11 @@
+data "external" "key" {
+  for_each = { for k, v in var.nodes : k => 0 if v.key == null && var.allow_auto_generate_key }
+  program  = [format("%s/key_gen.sh", path.module)]
+  query = {
+    name = each.key
+  }
+}
+
 locals {
   public_servers = {
     for name, node in var.nodes : name => {
@@ -8,8 +16,7 @@ locals {
 
   servers = { for name, node in var.nodes : name => {
     ip  = cidrhost(var.cidr_block, node.id)
-    pri = node.prikey
-    pub = node.pubkey
+    key = node.key == null ? data.external.key[name].result : node.key
     dns = coalesce(node.dns, [])
     sub = coalesce(node.subnets, [])
     os  = coalesce(node.os, "linux")
@@ -32,7 +39,7 @@ locals {
       public_servers = local.public_servers
       node           = node
       link = { for l in local.links[name] : l => {
-        pubkey    = local.servers[l].pub
+        pubkey    = local.servers[l].key.pub
         subnets   = flatten([[format("%s/32", local.servers[l].ip)], can(node.con[l]) ? [node.con[l].replace ? [] : local.servers[l].sub, node.con[l].subnets] : []])
         keepalive = can(node.con[l]) ? node.con[l].keepalive : 25
       } }
