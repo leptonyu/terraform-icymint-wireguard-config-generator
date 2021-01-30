@@ -3,10 +3,13 @@ data "external" "key" {
   program  = [format("%s/key_gen.sh", path.module)]
   query = {
     name = each.key
+    path = var.key_path
   }
 }
 
 locals {
+  defaultPersistentKeepalive = 25
+
   public_servers = {
     for name, node in var.nodes : name => {
       ip   = node.public_ip
@@ -23,7 +26,7 @@ locals {
     con = { for k, v in coalesce(node.connect_subnets, {}) : k => {
       subnets   = coalesce(v.subnets, [])
       replace   = can(v.mergeSubnetStrategy) ? v.mergeSubnetStrategy == "replace" : false
-      keepalive = coalesce(v.persistentKeepalive, 25)
+      keepalive = coalesce(v.persistentKeepalive, local.defaultPersistentKeepalive)
     } }
     origin = node
   } }
@@ -41,7 +44,7 @@ locals {
       link = { for l in local.links[name] : l => {
         pubkey    = local.servers[l].key.pub
         subnets   = flatten([[format("%s/32", local.servers[l].ip)], can(node.con[l]) ? [node.con[l].replace ? [] : local.servers[l].sub, node.con[l].subnets] : []])
-        keepalive = can(node.con[l]) ? node.con[l].keepalive : 25
+        keepalive = can(node.con[l]) ? node.con[l].keepalive : local.defaultPersistentKeepalive
       } }
     })
   }

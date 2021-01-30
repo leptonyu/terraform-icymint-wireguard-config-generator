@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
-eval "$(jq -r '@sh "NAME=\(.name)"')"
+eval "$(jq -r '@sh "NAME=\(.name) KEY_PATH=\(.path)"')"
 
-mkdir .terraform || true
+mkdir -p $KEY_PATH || true
 
-FILE=".terraform/wg_$NAME.key"
+FILE="$KEY_PATH/$NAME.key"
 if [ ! -e "$FILE" ]; then
 	KEY=$(wg genkey)
 	PUB=$(echo "$KEY" | wg pubkey)
@@ -12,4 +12,3 @@ if [ ! -e "$FILE" ]; then
 fi
 
 cat $FILE
-

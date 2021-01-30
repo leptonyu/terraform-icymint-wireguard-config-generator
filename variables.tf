@@ -13,7 +13,13 @@ variable "cidr_block" {
 variable "allow_auto_generate_key" {
   default     = false
   type        = bool
-  description = "Allow auto generate wireguard keys, you have install wireguard locally and can run bash shell."
+  description = "Allow auto generate wireguard keys, you have install wireguard and jq locally and can run bash shell."
+}
+
+variable "key_path" {
+  default     = "wg_keys"
+  type        = string
+  description = "Specify auto generated keys store path."
 }
 
 variable "nodes" {
@@ -82,11 +88,6 @@ variable "nodes" {
     condition     = alltrue([for n in var.nodes : coalesce(n.port, 58120) > 0 && coalesce(n.port, 58120) < 65535])
     error_message = "Port invalid."
   }
-
-  # validation {
-  #   condition     = alltrue([for n in var.nodes : n.key != null || allow_auto_generate_key])
-  #   error_message = "Auto generate key is turned off, please provide all keys."
-  # }
 
   validation {
     condition     = alltrue([for n in var.nodes : can(regex("^[a-zA-Z0-9+/]{43}=$", n.key.pri)) if n.key != null])

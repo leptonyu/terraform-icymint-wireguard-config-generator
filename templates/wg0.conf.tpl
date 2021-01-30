@@ -32,7 +32,6 @@ PostUp = route add ${block} -interface %i
 %{~ endfor}
 %{~ endif }
 
-
 %{~ for ln, lnode in link }
 [Peer]
 # Name = ${ln}

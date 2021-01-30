@@ -1,7 +1,6 @@
 module "wireguard" {
-  # source                  = "leptonyu/wireguard-config-generator/icymint"
-  # version                 = "0.1.0"
-  source                  = "../.."
+  source                  = "leptonyu/wireguard-config-generator/icymint"
+  version                 = "0.1.0"
   allow_auto_generate_key = true
   nodes = {
     main = {
@@ -29,10 +28,6 @@ module "wireguard" {
     }
     node2 = {
       id = 3
-      # key = {
-      #   pri = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC="
-      #   pub = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC0="
-      # }
       connect_subnets = {
         main = {
           persistentKeepalive = 30

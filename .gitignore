@@ -1,3 +1,4 @@
 **/.terraform*
 
 **/terraform.tfstate*
+**/wg_keys
