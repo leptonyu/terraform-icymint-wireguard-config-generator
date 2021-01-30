@@ -60,7 +60,7 @@ variable "nodes" {
   }
 
   validation {
-    condition     = alltrue([for k, n in var.nodes : can(regex("^[a-z]([-a-z0-9]{1,10})$", k))])
+    condition     = alltrue([for k, n in var.nodes : can(regex("^[a-z]([_a-z0-9]{1,10})$", k))])
     error_message = "Name invalid."
   }
 
