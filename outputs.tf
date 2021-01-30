@@ -1,6 +1,6 @@
-# output "nodes" {
-#   value = local.servers
-# }
+output "nodes" {
+  value = local.servers
+}
 
 # output "links" {
 #   value = local.links
