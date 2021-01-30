@@ -18,11 +18,12 @@ locals {
   }
 
   servers = { for name, node in var.nodes : name => {
-    ip  = cidrhost(var.cidr_block, node.id)
-    key = node.key == null ? data.external.key[name].result : node.key
-    dns = coalesce(node.dns, [])
-    sub = coalesce(node.subnets, [])
-    os  = coalesce(node.os, "linux")
+    ip     = cidrhost(var.cidr_block, node.id)
+    key    = node.key == null ? data.external.key[name].result : node.key
+    dns    = coalesce(node.dns, [])
+    sub    = coalesce(node.subnets, [])
+    os     = coalesce(node.os, "linux")
+    routes = flatten([[var.cidr_block], coalesce(node.routes, [])])
     con = { for k, v in coalesce(node.connect_subnets, {}) : k => {
       subnets   = coalesce(v.subnets, [])
       replace   = can(v.mergeSubnetStrategy) ? v.mergeSubnetStrategy == "replace" : false

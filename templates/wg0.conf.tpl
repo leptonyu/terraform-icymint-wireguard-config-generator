@@ -25,7 +25,7 @@ PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACC
 %{~ endif }
 %{~ if node.origin.routes != null}
 Table = off
-%{~ for block in node.origin.routes }
+%{~ for block in node.routes }
 %{~ if node.os == "macos" }
 PostUp = route add ${block} -interface %i
 %{~ endif }
