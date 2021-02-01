@@ -56,8 +56,8 @@ variable "templates" {
 
 variable "nodes" {
   type = map(object({
-    id   = number
-    from = optional(string)
+    id       = number
+    template = optional(string)
     key = optional(object({
       pri = string
       pub = string
