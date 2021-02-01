@@ -3,6 +3,15 @@ module "wireguard" {
   # version = "0.1.1"
   source                  = "../.."
   allow_auto_generate_key = true
+  templates = {
+    node = {
+      connect = {
+        main = {
+          persistentKeepalive = 30
+        }
+      }
+    }
+  }
   nodes = {
     main = {
       id        = 1
@@ -28,20 +37,20 @@ module "wireguard" {
       }
     }
     node2 = {
-      id = 3
-      connect = {
-        main = {
-          persistentKeepalive = 30
-        }
-      }
+      id       = 3
+      template = "node"
     }
   }
 }
 
-resource "local_file" "wg" {
-  for_each             = module.wireguard.configurations
-  content              = each.value
-  file_permission      = "0644"
-  directory_permission = "0755"
-  filename             = format("%s/.terraform/%s.conf", path.module, each.key)
+output "name" {
+  value = module.wireguard
 }
+
+# resource "local_file" "wg" {
+#   for_each             = module.wireguard.configurations
+#   content              = each.value
+#   file_permission      = "0644"
+#   directory_permission = "0755"
+#   filename             = format("%s/.terraform/%s.conf", path.module, each.key)
+# }
