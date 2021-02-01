@@ -17,23 +17,21 @@ locals {
     } if can(node.public_ip)
   }
 
-  templates = { for name, n in var.nodes : name => can(var.templates[n.template]) ? var.templates[n.template] : {} }
-
   servers = { for name, node in var.nodes : name => {
     ip     = cidrhost(var.cidr_block, node.id)
-    key    = node.key != null ? node.key : try(local.templates[name].key, data.external.key[name].result)
-    dns    = node.dns != null ? node.dns : try(local.templates[name].dns, var.dns)
-    sub    = node.subnets != null ? node.subnets : try(local.templates[name].subnets, [])
-    os     = node.os != null ? node.os : try(local.templates[name].os, "linux")
-    routes = flatten([[var.cidr_block], node.routes != null ? node.routes : try(local.templates[name].routes, [])])
-    con = { for k, v in node.connect != null ? node.connect : try(local.templates[name].connect, {}) : k => {
+    key    = node.key != null ? node.key : try(var.templates[node.template].key, data.external.key[name].result)
+    dns    = node.dns != null ? node.dns : try(var.templates[node.template].dns, var.dns)
+    sub    = node.subnets != null ? node.subnets : try(var.templates[node.template].subnets, [])
+    os     = node.os != null ? node.os : try(var.templates[node.template].os, "linux")
+    routes = flatten([[var.cidr_block], node.routes != null ? node.routes : try(var.templates[node.template].routes, [])])
+    con = { for k, v in node.connect != null ? node.connect : try(var.templates[node.template].connect, {}) : k => {
       subnets   = coalesce(v.subnets, [])
       replace   = can(v.mergeSubnetStrategy) ? v.mergeSubnetStrategy == "replace" : false
       keepalive = coalesce(v.persistentKeepalive, local.defaultPersistentKeepalive)
     } }
-    mtu        = try(node.mtu, local.templates[name].mtu)
-    post       = try(node.post, local.templates[name].post)
-    routes_old = try(node.routes, local.templates[name].routes)
+    mtu        = try(node.mtu, var.templates[node.template].mtu)
+    post       = try(node.post, var.templates[node.template].post)
+    routes_old = try(node.routes, var.templates[node.template].routes)
   } }
 
   links = { for name, server in local.servers : name =>
