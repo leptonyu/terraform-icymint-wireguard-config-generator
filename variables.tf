@@ -28,7 +28,7 @@ variable "key_path" {
   description = "Specify auto generated keys store path."
 }
 
-variable "connect_template" {
+variable "templates" {
   default = {}
   type = map(object({
     key = optional(object({

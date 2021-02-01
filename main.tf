@@ -17,7 +17,7 @@ locals {
     } if can(node.public_ip)
   }
 
-  templates = { for name, n in var.nodes : name => can(var.connect_template[n.ref]) ? var.connect_template[n.ref] : {} }
+  templates = { for name, n in var.nodes : name => can(var.templates[n.ref]) ? var.templates[n.ref] : {} }
 
   servers = { for name, node in var.nodes : name => {
     ip     = cidrhost(var.cidr_block, node.id)
