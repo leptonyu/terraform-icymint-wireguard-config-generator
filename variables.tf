@@ -10,6 +10,12 @@ variable "cidr_block" {
   description = "Wireguard cidr block"
 }
 
+variable "dns" {
+  default     = []
+  type        = list(string)
+  description = "Wireguard default dns"
+}
+
 variable "allow_auto_generate_key" {
   default     = false
   type        = bool
@@ -39,7 +45,7 @@ variable "nodes" {
     public_ip = optional(string)
     port      = optional(number)
     subnets   = optional(list(string))
-    connect_subnets = optional(map(object({
+    connect = optional(map(object({
       subnets             = optional(list(string))
       mergeSubnetStrategy = optional(string)
       persistentKeepalive = optional(number)
@@ -112,7 +118,7 @@ variable "nodes" {
 
   validation {
     condition = alltrue([for n in var.nodes :
-      alltrue([for c in coalesce(n.connect_subnets, {}) : can(regex("^(replace|merge)$", coalesce(c.mergeSubnetStrategy, "merge")))])
+      alltrue([for c in coalesce(n.connect, {}) : can(regex("^(replace|merge)$", coalesce(c.mergeSubnetStrategy, "merge")))])
     ])
     error_message = "MergeSubnetStrategy invalid, use replace/merge ."
   }

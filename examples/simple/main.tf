@@ -11,7 +11,7 @@ module "wireguard" {
         pri = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
         pub = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0="
       }
-      connect_subnets = {
+      connect = {
         node1 = {
           subnets             = ["8.0.0.0/8"]
           mergeSubnetStrategy = "replace"
@@ -29,7 +29,7 @@ module "wireguard" {
     }
     node2 = {
       id = 3
-      connect_subnets = {
+      connect = {
         main = {
           persistentKeepalive = 30
         }
