@@ -7,14 +7,14 @@ PrivateKey = ${node.key.pri}
 %{~ for dns in node.dns }
 DNS = ${dns}
 %{~ endfor}
-%{~ if node.origin.mtu != null}
-MTU = ${node.origin.mtu}
+%{~ if node.mtu != null}
+MTU = ${node.mtu}
 %{~ endif }
-%{~ if node.origin.post != null}
-%{~ for script in node.origin.post.up }
+%{~ if node.post != null}
+%{~ for script in node.post.up }
 PostUp = ${script}
 %{~ endfor}
-%{~ for script in node.origin.post.down }
+%{~ for script in node.post.down }
 PostDown = ${script}
 %{~ endfor}
 %{~ else}
@@ -23,7 +23,7 @@ PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACC
 PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -s ${cidr} -j MASQUERADE
 %{~ endif }
 %{~ endif }
-%{~ if node.origin.routes != null}
+%{~ if node.routes_old != null}
 Table = off
 %{~ for block in node.routes }
 %{~ if node.os == "macos" }

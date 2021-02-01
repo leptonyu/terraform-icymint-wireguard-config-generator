@@ -1,7 +1,7 @@
 module "wireguard" {
-  source  = "leptonyu/wireguard-config-generator/icymint"
-  version = "0.1.0"
-  # source                  = "../.."
+  # source  = "leptonyu/wireguard-config-generator/icymint"
+  # version = "0.1.1"
+  source                  = "../.."
   allow_auto_generate_key = true
   nodes = {
     main = {

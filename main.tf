@@ -17,19 +17,23 @@ locals {
     } if can(node.public_ip)
   }
 
+  templates = { for name, n in var.nodes : name => can(var.connect_template[n.ref]) ? var.connect_template[n.ref] : {} }
+
   servers = { for name, node in var.nodes : name => {
     ip     = cidrhost(var.cidr_block, node.id)
-    key    = node.key == null ? data.external.key[name].result : node.key
-    dns    = coalesce(node.dns, var.dns)
-    sub    = coalesce(node.subnets, [])
-    os     = coalesce(node.os, "linux")
-    routes = flatten([[var.cidr_block], coalesce(node.routes, [])])
-    con = { for k, v in coalesce(node.connect, {}) : k => {
+    key    = node.key != null ? node.key : try(local.templates[name].key, data.external.key[name].result)
+    dns    = node.dns != null ? node.dns : try(local.templates[name].dns, var.dns)
+    sub    = node.subnets != null ? node.subnets : try(local.templates[name].subnets, [])
+    os     = node.os != null ? node.os : try(local.templates[name].os, "linux")
+    routes = flatten([[var.cidr_block], node.routes != null ? node.routes : try(local.templates[name].routes, [])])
+    con = { for k, v in node.connect != null ? node.connect : try(local.templates[name].connect, {}) : k => {
       subnets   = coalesce(v.subnets, [])
       replace   = can(v.mergeSubnetStrategy) ? v.mergeSubnetStrategy == "replace" : false
       keepalive = coalesce(v.persistentKeepalive, local.defaultPersistentKeepalive)
     } }
-    origin = node
+    mtu        = try(node.mtu, local.templates[name].mtu)
+    post       = try(node.post, local.templates[name].post)
+    routes_old = try(node.routes, local.templates[name].routes)
   } }
 
   links = { for name, server in local.servers : name =>

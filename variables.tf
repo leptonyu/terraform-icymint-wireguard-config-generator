@@ -28,9 +28,36 @@ variable "key_path" {
   description = "Specify auto generated keys store path."
 }
 
+variable "connect_template" {
+  default = {}
+  type = map(object({
+    key = optional(object({
+      pri = string
+      pub = string
+    }))
+    os     = optional(string)
+    mtu    = optional(number)
+    routes = optional(list(string))
+    post = optional(object({
+      up   = list(string)
+      down = list(string)
+    }))
+    port    = optional(number)
+    subnets = optional(list(string))
+    connect = optional(map(object({
+      subnets             = optional(list(string))
+      mergeSubnetStrategy = optional(string)
+      persistentKeepalive = optional(number)
+    })))
+    dns = optional(list(string))
+  }))
+  description = "Connect Template "
+}
+
 variable "nodes" {
   type = map(object({
-    id = number
+    id   = number
+    from = optional(string)
     key = optional(object({
       pri = string
       pub = string
