@@ -29,7 +29,7 @@ locals {
       replace   = can(v.mergeSubnetStrategy) ? v.mergeSubnetStrategy == "replace" : false
       keepalive = coalesce(v.persistentKeepalive, local.defaultPersistentKeepalive)
     } }
-    mtu        = node.mtu != null ? node.mtu : try(var.templates[node.template].mtu, null)
+    mtu        = node.mtu != null ? node.mtu : try(var.templates[node.template].mtu, var.mtu)
     post       = node.post != null ? node.post : try(var.templates[node.template].post, null)
     routes_old = node.routes != null ? node.routes : try(var.templates[node.template].routes, null)
   } }

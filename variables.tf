@@ -28,6 +28,13 @@ variable "key_path" {
   description = "Specify auto generated keys store path."
 }
 
+
+variable "mtu" {
+  default     = 1420
+  type        = number
+  description = "Wireguard"
+}
+
 variable "templates" {
   default = {}
   type = map(object({
