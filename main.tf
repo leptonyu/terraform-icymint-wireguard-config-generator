@@ -47,8 +47,8 @@ locals {
       link = { for l in local.links[name] : l => {
         pubkey = local.servers[l].key.pub
         subnets = flatten([[format("%s/32", local.servers[l].ip)], can(node.con[l])
-          ? [node.con[l].replace ? [] : flatten(local.servers[l].sub), node.con[l].subnets]
-        : [local.servers[l].sub]])
+          ? flatten([node.con[l].replace ? [] : flatten(local.servers[l].sub), node.con[l].subnets])
+        : flatten(local.servers[l].sub)])
         keepalive = can(node.con[l]) ? node.con[l].keepalive : local.defaultPersistentKeepalive
       } }
     })
