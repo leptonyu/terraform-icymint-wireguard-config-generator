@@ -30,9 +30,9 @@ locals {
       keepalive = coalesce(v.persistentKeepalive, local.defaultPersistentKeepalive)
     } }
     mtu           = node.mtu != null ? node.mtu : coalesce(try(var.templates[node.template].mtu, null), var.mtu)
-    interface_out = try(node.interface_out, "eth0")
-    linux_up      = try(node.linux_up, "")
-    linux_down    = try(node.linux_down, "")
+    interface_out = coalesce(node.interface_out, "eth0")
+    linux_up      = node.linux_up != null ? node.linux_up : ""
+    linux_down    = node.linux_down != null ? node.linux_down : ""
     post          = node.post != null ? node.post : try(var.templates[node.template].post, null)
     routes_old    = node.routes != null ? node.routes : try(var.templates[node.template].routes, null)
   } }

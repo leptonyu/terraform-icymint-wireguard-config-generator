@@ -14,7 +14,8 @@ module "wireguard" {
   }
   nodes = {
     main = {
-      id        = 1
+      id = 1
+
       public_ip = "1.2.3.4"
       key = {
         pri = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
@@ -37,8 +38,9 @@ module "wireguard" {
       }
     }
     node2 = {
-      id       = 3
-      template = "node"
+      id            = 3
+      interface_out = "xxx"
+      template      = "node"
     }
   }
 }
