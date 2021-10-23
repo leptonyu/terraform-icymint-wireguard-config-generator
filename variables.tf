@@ -49,8 +49,9 @@ variable "templates" {
       up   = list(string)
       down = list(string)
     }))
-    port    = optional(number)
-    subnets = optional(list(string))
+    block_out = optional(string)
+    port      = optional(number)
+    subnets   = optional(list(string))
     connect = optional(map(object({
       subnets             = optional(list(string))
       mergeSubnetStrategy = optional(string)
@@ -73,6 +74,7 @@ variable "nodes" {
     mtu           = optional(number)
     routes        = optional(list(string))
     interface_out = optional(string)
+    block_out     = optional(string)
     linux_up      = optional(string)
     linux_down    = optional(string)
     post = optional(object({
