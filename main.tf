@@ -32,7 +32,7 @@ locals {
     mtu = node.mtu != null ? node.mtu : coalesce(try(var.templates[node.template].mtu, null), var.mtu)
     linux = {
       interface = coalesce(node.linux != null ? node.linux.interface : null, "eth0")
-      block     = coalesce(node.linux != null ? node.linux.block : null, var.cidr_block)
+      block     = coalesce(node.linux != null ? node.linux.block : null, "0.0.0.0/0")
       up        = node.linux != null ? (node.linux.up != null ? node.linux.up : "") : ""
       down      = node.linux != null ? (node.linux.down != null ? node.linux.down : "") : ""
     }
