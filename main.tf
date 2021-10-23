@@ -29,12 +29,15 @@ locals {
       replace   = can(v.mergeSubnetStrategy) ? v.mergeSubnetStrategy == "replace" : false
       keepalive = coalesce(v.persistentKeepalive, local.defaultPersistentKeepalive)
     } }
-    mtu           = node.mtu != null ? node.mtu : coalesce(try(var.templates[node.template].mtu, null), var.mtu)
-    interface_out = coalesce(node.interface_out, "eth0")
-    linux_up      = node.linux_up != null ? node.linux_up : ""
-    linux_down    = node.linux_down != null ? node.linux_down : ""
-    post          = node.post != null ? node.post : try(var.templates[node.template].post, null)
-    routes_old    = node.routes != null ? node.routes : try(var.templates[node.template].routes, null)
+    mtu = node.mtu != null ? node.mtu : coalesce(try(var.templates[node.template].mtu, null), var.mtu)
+    linux = {
+      interface = coalesce(node.linux != null ? node.linux.interface : null, "eth0")
+      block     = coalesce(node.linux != null ? node.linux.block : null, var.cidr_block)
+      up        = node.linux != null ? coalesce(node.linux.up, coalesce(try(var.templates[node.template].linux.up, null), "")) : ""
+      down      = node.linux != null ? coalesce(node.linux.down, coalesce(try(var.templates[node.template].linux.down, null), "")) : ""
+    }
+    post       = node.post != null ? node.post : try(var.templates[node.template].post, null)
+    routes_old = node.routes != null ? node.routes : try(var.templates[node.template].routes, null)
   } }
 
   links = { for name, server in local.servers : name =>

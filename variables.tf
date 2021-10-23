@@ -69,12 +69,17 @@ variable "nodes" {
       pri = string
       pub = string
     }))
-    os            = optional(string)
-    mtu           = optional(number)
-    routes        = optional(list(string))
-    interface_out = optional(string)
-    linux_up      = optional(string)
-    linux_down    = optional(string)
+    os     = optional(string)
+    mtu    = optional(number)
+    routes = optional(list(string))
+
+    linux = optional(map(object({
+      interface = optional(string)
+      block     = optional(string)
+      up        = optional(string)
+      down      = optional(string)
+    })))
+
     post = optional(object({
       up   = list(string)
       down = list(string)
