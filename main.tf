@@ -31,7 +31,6 @@ locals {
     } }
     mtu           = node.mtu != null ? node.mtu : coalesce(try(var.templates[node.template].mtu, null), var.mtu)
     interface_out = coalesce(node.interface_out, "eth0")
-    block_out     = node.block_out != null ? node.block_out : coalesce(try(var.templates[node.template].block_out, null), var.cidr_block)
     linux_up      = node.linux_up != null ? node.linux_up : ""
     linux_down    = node.linux_down != null ? node.linux_down : ""
     post          = node.post != null ? node.post : try(var.templates[node.template].post, null)
