@@ -33,8 +33,8 @@ locals {
     linux = {
       interface = coalesce(node.linux != null ? node.linux.interface : null, "eth0")
       block     = coalesce(node.linux != null ? node.linux.block : null, var.cidr_block)
-      up        = node.linux != null ? coalesce(node.linux.up, coalesce(try(var.templates[node.template].linux.up, null), "")) : ""
-      down      = node.linux != null ? coalesce(node.linux.down, coalesce(try(var.templates[node.template].linux.down, null), "")) : ""
+      up        = node.linux != null ? (node.linux.up != null ? node.linux.up : "") : ""
+      down      = node.linux != null ? (node.linux.down != null ? node.linux.down : "") : ""
     }
     post       = node.post != null ? node.post : try(var.templates[node.template].post, null)
     routes_old = node.routes != null ? node.routes : try(var.templates[node.template].routes, null)

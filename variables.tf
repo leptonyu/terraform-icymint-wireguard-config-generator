@@ -73,12 +73,12 @@ variable "nodes" {
     mtu    = optional(number)
     routes = optional(list(string))
 
-    linux = optional(map(object({
+    linux = optional(object({
       interface = optional(string)
       block     = optional(string)
       up        = optional(string)
       down      = optional(string)
-    })))
+    }))
 
     post = optional(object({
       up   = list(string)
