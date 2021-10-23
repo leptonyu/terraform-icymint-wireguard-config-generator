@@ -19,8 +19,8 @@ PostDown = ${script}
 %{~ endfor}
 %{~ else}
 %{~ if node.os == "linux" }
-PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ${node.interface_out} -j MASQUERADE${node.linux_up}
-PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ${node.interface_out} -j MASQUERADE${node.linux_down}
+PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -s ${node.block_out} -o ${node.interface_out} -j MASQUERADE${node.linux_up}
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -s ${node.block_out} -o ${node.interface_out} -j MASQUERADE${node.linux_down}
 %{~ endif }
 %{~ endif }
 %{~ if node.routes_old != null}
